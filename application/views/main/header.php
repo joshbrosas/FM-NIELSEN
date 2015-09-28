@@ -13,6 +13,7 @@
     <link href="<?php echo base_url(); ?>assets/bower_components/metisMenu/dist/metisMenu.min.css" rel="stylesheet">
     <!-- Timeline CSS -->
     <link href="<?php echo base_url(); ?>assets/dist/css/timeline.css" rel="stylesheet">
+    <link href="<?php echo base_url(); ?>assets/dist/css/datepicker.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link href="<?php echo base_url(); ?>assets/dist/css/sb-admin-2.css" rel="stylesheet">
     <!-- Morris Charts CSS -->
