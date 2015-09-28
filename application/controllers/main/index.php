@@ -8,6 +8,8 @@ class Index extends CI_Controller
 	{
 		error_reporting(E_ALL & ~E_NOTICE);
 		parent::__construct();
+		ini_set('memory_limit','30000M'); // mem
+		ini_set('max_execution_time', 3000); // time
 		$this->load->library('session');
 	}
 
@@ -98,20 +100,30 @@ class Index extends CI_Controller
 		foreach ($result as $value) {
 
 			$ddate =  $value['CSDATE'];
+			$csstor = $value['CSSTOR'];
 			$ean = $value['IVNDPN'];
 			$qty = $value['QTY'];
 			$rsp = $value['CSEXPR'];
 			$sales = $value['CSEXPR'];
 			$gross =  $value['CSEXPR'];
 
-			$date = new DateTime($value['CSDATE']);
-			$month = $date->format("m");
-			$dates = $date->format("d");
-			$week = $date->format("W");
-			$year = $date->format('Y');
-			$transactiondate =  "$month/$dates/$year"; 
+
+			$trans_date = $this->fdate_s($ddate);
+
+
+			// $trans_date = new DateTime($ddate);
+			// $month = $trans_date->format("m");
+			// $dates = $trans_date->format("d");
+			// $week = $trans_date->format("W");
+			// $year = $trans_date->format('Y');
+			// $transactiondate =  "$month/$dates/$year"; 
 			
-			$date = new DateTime($value['CSDATE']);
+
+			
+			$date = mktime(0, 0, 0, $ddate); 
+			$get_week = (int)date('YW', $date); 
+
+			$date = new DateTime($ddate);
 			$week = $date->format("W");
 			$year = $date->format('Y');
 			$week = "$year$week"; 
@@ -119,12 +131,13 @@ class Index extends CI_Controller
 			$date = new DateTime($value['CSDATE']);
 			$year = $date->format("Y");
 			$year =  "$year";
-			
-			$date = new DateTime($value['CSDATE']);
-			$month = $date->format("n");
-			$month =  "$month";
+			$timestamp = strtotime($this->fdate_format($ddate));
+			$week = date('YW', $timestamp);
+			$trans_month = $this->fdate_month($ddate);
+			$trans_year = $this->fdate_year($ddate);
 
-			fputs($dataFile,"\"$ddate\",\"$ean\",\"$qty\",\"$rsp\",\"$sales\",\"$gross\",\"$transactiondate\",\"$week\",\"$year\",\"$month\"\n");
+
+			fputs($dataFile,"\"$csstor\",\"$ean\",\"$qty\",\"$rsp\",\"$sales\",\"$gross\",\"$trans_date\",\"$week\",\"$trans_year\",\"$trans_month\"\n");
 		}
 			$this->session->set_flashdata("message", 'CSV Export successfully');
 			redirect('main/index/sales');
@@ -222,22 +235,50 @@ class Index extends CI_Controller
 		
 		foreach ($result as $value) 
 		{
-					$upc=$value['IVNDPN'];
-					$sku=$value['INUMBR'];
-					$idesc=$value['IDESCR'];
-					$srp=$value['CURREG'];
-					$uom=$value['ISLUM'];
-					$catcd=$value['ISDEPT'];
-					$catds=$value['DPTNAM'];
-					$scatcd=$value['ICLAS'];
-					$scatds=$value['DPTNAM'];
-					$ascd=$value['ASNUM'];
-					$asnam=$value['ASNAME'];
-					$strdate=$this->fdate($value['IMDATE']);
-					$strspace="";
+					$upc 	 = $value['IVNDPN'];
+					$sku   	 = $value['INUMBR'];
+					$idesc 	 = $value['IDESCR'];
+					$srp 	 = $value['CURREG'];
+					$uom	 = $value['ISLUM'];
+					$catcd	 = $value['ISDEPT'];
+					$catds	 = $value['DPTNAM'];
+					$scatcd  = $value['ICLAS'];
+					$scatds  = $value['DPTNAM'];
+					$ascd	 = $value['ASNUM'];
+					$asnam   = $value['ASNAME'];
+					$strdate = $this->fdate($value['IMDATE']);
+					$strspace= "";
 
 		fputs($dataFile,"\"$upc\",\"$sku\",\"$idesc\",\"$srp\",\"$uom\",\"$strspace\",\"$strspace\",\"$catcd\",\"$catds\",\"$scatcd\",\"$scatds\",\"$ascd\",\"$asnam\",\"$strdate\",\"$strspace\"\n");
 		}
+
+
+		 // $ftp_server="ftp.172.16.1.84";
+		 // $ftp_user_name="root";
+		 // $ftp_user_pass="Extern@l";
+		 // $file_to_upload = fopen($output_dir.$filename,'w');
+		 // $remote_file = "/var/www/hosts/debsasr_backup_82415/public_html/";
+
+		 // // set up basic connection
+		 // $conn_id = ftp_connect($ftp_server);
+
+		 // // login with username and password
+		 // $login_result = ftp_login($conn_id, $ftp_user_name, $ftp_user_pass);
+
+		 // // upload a file
+
+		 // echo $ftp_user_name.$ftp_user_pass;
+		 // exit();
+		 // if (ftp_put($conn_id, $remote_file, $file_to_upload, FTP_ASCII)) {
+		 //    echo "successfully uploaded $file\n";
+		 //    exit;
+		 // } else {
+		 //    echo "There was a problem while uploading $file\n";
+		 //    exit;
+		 //    }
+		 // // close the connection
+		 // ftp_close($conn_id);
+
 		$this->session->set_flashdata("message", 'CSV Export successfully');
 		redirect('main/index/item');
 
@@ -264,6 +305,94 @@ class Index extends CI_Controller
 			$yr=$yr+2000;
 			}
 		$ret_str="$mo$day$yr";
+		return $ret_str;
+	}
+
+	public function fdate_format($date1)
+	{
+		$len=strlen($date1);
+		if($len < 4 or $len == 0 or $date1 == "")
+			return 0;
+		$day=substr($date1,$len-2,2);
+		$mo=substr($date1,$len-4,2);
+		if($len==5)
+			$yr="0" . substr($date1,0,1);
+		elseif($len==4)
+			$yr="00";
+		else
+			$yr=substr($date1,0,2);
+			if($yr >= 80){
+			$yr=$yr+1900;
+			}else{
+			$yr=$yr+2000;
+			}
+		$ret_str="$yr-$mo-$day";
+		return $ret_str;
+	}
+
+	public function fdate_s($date1)
+	{
+		$len=strlen($date1);
+		if($len < 4 or $len == 0 or $date1 == "")
+			return 0;
+		$day=substr($date1,$len-2,2);
+		$mo=substr($date1,$len-4,2);
+		if($len==5)
+			$yr="0" . substr($date1,0,1);
+		elseif($len==4)
+			$yr="00";
+		else
+			$yr=substr($date1,0,2);
+			if($yr >= 80){
+			$yr=$yr+1900;
+			}else{
+			$yr=$yr+2000;
+			}
+		$ret_str="$mo/$day/$yr";
+		return $ret_str;
+	}
+
+	public function fdate_month($date1)
+	{
+		$len=strlen($date1);
+		if($len < 4 or $len == 0 or $date1 == "")
+			return 0;
+		$day=substr($date1,$len-2,2);
+		$mo=substr($date1,$len-4,2);
+		if($len==5)
+			$yr="0" . substr($date1,0,1);
+		elseif($len==4)
+			$yr="00";
+		else
+			$yr=substr($date1,0,2);
+			if($yr >= 80){
+			$yr=$yr+1900;
+			}else{
+			$yr=$yr+2000;
+			}
+		$ret_str="$mo";
+		return $ret_str;
+	}
+
+	public function fdate_year($date1)
+	{
+		$len=strlen($date1);
+		if($len < 4 or $len == 0 or $date1 == "")
+			return 0;
+		$day=substr($date1,$len-2,2);
+		$mo=substr($date1,$len-4,2);
+		if($len==5)
+			$yr="0" . substr($date1,0,1);
+		elseif($len==4)
+			$yr="00";
+		else
+			$yr=substr($date1,0,2);
+			if($yr >= 80){
+			$yr=$yr+1900;
+			}else{
+			$yr=$yr+2000;
+			}
+		$ret_str="$yr";
 		return $ret_str;
 	}
 }

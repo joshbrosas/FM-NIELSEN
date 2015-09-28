@@ -8,11 +8,5 @@
 	</div>
 	</div>
 
-	<?php
-$ddate = "1/5/2015";
-$date = new DateTime($ddate);
-$week = $date->format("W");
-$year = $date->format('Y');
-echo "Weeknumber: $year$week"; ?>
 	</div>
 <?php $this->load->view('main/footer'); ?>
