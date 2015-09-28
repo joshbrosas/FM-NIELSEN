@@ -3,7 +3,7 @@
 	<div class="panel panel-green">
 	<div class="panel-heading">Information</div>
 		<div class="panel-body">
-			<form method="post">
+			<form method="post" id="formexport">
 
 				<?php if($this->session->flashdata('message') != ''){ ?>
 					<div class="alert alert-success alert-dismissible" role="alert" id="alertclose">
@@ -32,7 +32,7 @@
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-md-offset-2 col-md-1"><input type="submit" class="btn btn-success btn-sm" value="Export To CSV"></div>
+					<div class="col-md-offset-2 col-md-1"><input type="submit" id="btnexport"  class="btn btn-success btn-sm" value="Export To CSV"></div>
 				</div>	
 			</form>
 		</div>

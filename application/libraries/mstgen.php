@@ -79,10 +79,6 @@ $sqlStr="select mst.ivndpn,mst.inumbr,mst.idescr,mst.isdept,sdept.dptnam,mst.icl
 					$strdate=fdate(odbc_result($detailx,13));
 					$strspace="";
 
-
-
-//insert all Entries - PFM PO
-
      fputs($dataFile,"\"$upc\",\"$sku\",\"$idesc\",\"$srp\",\"$uom\",\"$strspace\",\"$strspace\",\"$catcd\",\"$catds\",\"$scatcd\",\"$scatds\",\"$ascd\",\"$asnam\",\"$strdate\",\"$strspace\"\n");
 }
 

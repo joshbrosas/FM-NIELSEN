@@ -132,34 +132,6 @@ class Index extends CI_Controller
 		}
 	}
 
-	public function item()
-	{
-		# Load the view for item
-		$data['pagetitle'] = "Item";
-		$this->load->view('templates/item', $data);
-	}
-
-	public function fdate($date1){
-		$len=strlen($date1);
-		if($len < 4 or $len == 0 or $date1 == "")
-			return 0;
-		$day=substr($date1,$len-2,2);
-		$mo=substr($date1,$len-4,2);
-		if($len==5)
-			$yr="0" . substr($date1,0,1);
-		elseif($len==4)
-			$yr="00";
-		else
-			$yr=substr($date1,0,2);
-			if($yr >= 80){
-			$yr=$yr+1900;
-			}else{
-			$yr=$yr+2000;
-			}
-		$ret_str="$mo$day$yr";
-		return $ret_str;
-	}
-
 	public function store()
 	{
 		# Load the view for store
@@ -218,6 +190,80 @@ class Index extends CI_Controller
 		}
 	}
 
-	
+	public function item()
+	{
+		# Load the view for item
+		$data['pagetitle'] = "Item";
+		$this->load->view('templates/item', $data);
 
+		if($_SERVER['REQUEST_METHOD'] == 'POST')
+		{
+			$cnString = "odbc:DRIVER={iSeries Access ODBC Driver}; ".
+					"SYSTEM=172.16.1.9; ".
+					"DATABASE=MMFMSLIB; ".
+					"UID=DCLACAP; ".
+					"PWD=PASSWORD";		
+		$this->dbh = new PDO($cnString,"","");
+		$query = "select mst.ivndpn,mst.inumbr,mst.idescr,mst.isdept,sdept.dptnam,mst.iclas,clas.dptnam,mst.ihzcod,a.curreg,mst.islum,mst.asnum,p.asname,mst.imdate
+            from MMFMSLIB.SDIMST a inner join
+            MMFMSLIB.INVMST mst on a.inumbr=mst.inumbr left join
+            MMFMSLIB.INVDPT sdept on mst.idept=sdept.idept and mst.isdept=sdept.isdept and sdept.iclas+sdept.isclas=0 left join
+            MMFMSLIB.INVDPT clas on mst.idept=clas.idept and mst.isdept=clas.isdept and mst.iclas=clas.iclas and clas.isclas=0
+            inner join MMFMSLIB.APSUPP p on mst.asnum=p.asnum
+			where mststr=1 and mstcur=150921 and mst.isdept<>910 and ihzcod='CVS'";
+		$statement = $this->dbh->prepare($query);
+		$statement->execute();	
+		$result  = $statement->fetchAll();
+
+		$output_dir="csv.docs\\";
+		$todayz=date("mdY",strtotime('+8 hours'));
+		$filename = "ITEM_"."$todayz".".csv";
+		$dataFile = fopen($output_dir.$filename,'w');
+		
+		foreach ($result as $value) 
+		{
+					$upc=$value['IVNDPN'];
+					$sku=$value['INUMBR'];
+					$idesc=$value['IDESCR'];
+					$srp=$value['CURREG'];
+					$uom=$value['ISLUM'];
+					$catcd=$value['ISDEPT'];
+					$catds=$value['DPTNAM'];
+					$scatcd=$value['ICLAS'];
+					$scatds=$value['DPTNAM'];
+					$ascd=$value['ASNUM'];
+					$asnam=$value['ASNAME'];
+					$strdate=$this->fdate($value['IMDATE']);
+					$strspace="";
+
+		fputs($dataFile,"\"$upc\",\"$sku\",\"$idesc\",\"$srp\",\"$uom\",\"$strspace\",\"$strspace\",\"$catcd\",\"$catds\",\"$scatcd\",\"$scatds\",\"$ascd\",\"$asnam\",\"$strdate\",\"$strspace\"\n");
+		}
+		$this->session->set_flashdata("message", 'CSV Export successfully');
+		redirect('main/index/item');
+
+
+		}
+	}
+
+	public function fdate($date1)
+	{
+		$len=strlen($date1);
+		if($len < 4 or $len == 0 or $date1 == "")
+			return 0;
+		$day=substr($date1,$len-2,2);
+		$mo=substr($date1,$len-4,2);
+		if($len==5)
+			$yr="0" . substr($date1,0,1);
+		elseif($len==4)
+			$yr="00";
+		else
+			$yr=substr($date1,0,2);
+			if($yr >= 80){
+			$yr=$yr+1900;
+			}else{
+			$yr=$yr+2000;
+			}
+		$ret_str="$mo$day$yr";
+		return $ret_str;
+	}
 }

@@ -32,3 +32,15 @@ window.setTimeout(function() {
 }, 4000);
  
 });
+
+$("#formexport").submit(function () {
+
+  var datepicker1 = $('#dpd1').val();
+  var datepicker2 = $('#dpd2').val();
+
+  if(datepicker1 == '' || datepicker2 == '')
+  {
+      alert('Please Fill all the required fields!');
+      return false;
+  }
+  });
