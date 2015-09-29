@@ -44,3 +44,14 @@ $("#formexport").submit(function () {
       return false;
   }
   });
+
+$("#formitem").submit(function () {
+
+  var datepicker1 = $('#dpd1').val();
+
+  if(datepicker1 == '')
+  {
+      alert('Please Fill all the required fields!');
+      return false;
+  }
+  });
