@@ -19,7 +19,7 @@ class Welcome extends CI_Controller {
 	 */
 	public function index()
 	{
-		redirect('main/index/login');
+		redirect('main/index/');
 	}
 }
 

@@ -92,7 +92,7 @@ class Index extends CI_Controller
 		$statement = $this->dbh->prepare($query);
 		$statement->execute();	
 		$result  = $statement->fetchAll();
-
+		
 			$output_dir="csv.docs\\";
 			$todayz=date("mdY",strtotime('+8 hours'));
 			$filename = "SALES_"."$todayz".".csv";
@@ -129,6 +129,8 @@ class Index extends CI_Controller
 			$date = new DateTime($value['CSDATE']);
 			$year = $date->format("Y");
 			$year =  "$year";
+
+			
 			$timestamp = strtotime($this->fdate_format($ddate));
 			$week = date('YW', $timestamp);
 			$trans_month = substr($ddate, 2, 2);
@@ -183,10 +185,10 @@ class Index extends CI_Controller
 
 		foreach ($result as $value) {
 
-			$strnum =  $value['STRNUM'];
-			$strnam = $value['STRNAM'];
-			$stradd = $value['STADD1'];
-			$straddx=str_replace(",","",$stradd);
+			$strnum  =  $value['STRNUM'];
+			$strnam  = $value['STRNAM'];
+			$stradd  = $value['STADD1'];
+			$straddx = str_replace(",","",$stradd);
 			$stcity = $value['STCITY'];
 			$stsdat = $this->fdate($value['STSDAT']);
 			$stcldt =  $this->fdate($value['STCLDT']);
@@ -208,7 +210,6 @@ class Index extends CI_Controller
 
 		if($_SERVER['REQUEST_METHOD'] == 'POST')
 		{
-
 			$date = new DateTime($this->input->post('selectdate'));
 			$format_date_from = $date->format("ymd");
 			$frmt_date_from = "$format_date_from"; 
@@ -254,6 +255,7 @@ class Index extends CI_Controller
 					$strspace= "";
 
 		fputs($dataFile,"\"$upc\",\"$sku\",\"$idesc\",\"$srp\",\"$uom\",\"$strspace\",\"$strspace\",\"$catcd\",\"$catds\",\"$scatcd\",\"$scatds\",\"$ascd\",\"$asnam\",\"$strdate\",\"$strspace\"\n");
+		
 		}
 
 		$this->session->set_flashdata("message", 'CSV Export successfully');
