@@ -55,3 +55,19 @@ $("#formitem").submit(function () {
       return false;
   }
   });
+
+var options = {
+  bg: '#5cb85c',
+
+  // leave target blank for global nanobar
+  target: document.getElementById('myDivId'),
+
+  // id for new nanobar
+  id: 'mynano'
+};
+
+var nanobar = new Nanobar( options );
+for(i = 0; i < 100; i++){
+nanobar.go(i);
+}
+nanobar.go(100);

@@ -6,7 +6,7 @@
 			<form method="post" id="formexport">
 
 				<?php if($this->session->flashdata('message') != ''){ ?>
-					<div class="alert alert-success alert-dismissible" role="alert" id="alertclose">
+				<div class="alert alert-success alert-dismissible" role="alert" id="alertclose">
 				  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 				  <strong><i class="fa fa-info"></i> <?php echo $this->session->flashdata("message"); ?></strong>
 				</div>

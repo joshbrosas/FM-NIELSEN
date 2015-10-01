@@ -32,7 +32,6 @@ return $ret_str;
 }
 
 
-
 $nwdate=fdate($today);
 
 

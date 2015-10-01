@@ -9,7 +9,11 @@
 |	http://codeigniter.com/user_guide/general/hooks.html
 |
 */
-
+$hook['display_override'][ ] = array(
+        'filepath' => 'hooks',
+        'filename' => 'optimize.php',
+        'function' => 'compress',
+        );
 
 
 /* End of file hooks.php */

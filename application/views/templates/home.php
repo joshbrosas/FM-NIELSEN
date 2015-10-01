@@ -1,5 +1,5 @@
 <?php $this->load->view('main/header'); ?>
-<div class="panel panel-green">
+<div class="panel panel-green" id="myDivId">
 	<div class="panel-heading">
 		Information
 	</div>

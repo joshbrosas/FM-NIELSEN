@@ -48,11 +48,6 @@ class Index extends CI_Controller
 
 	public function index()
 	{
-		if (!$this->session->userdata('jda_username'))
-		{
-			redirect('main/index/login');
-		}
-
 		# Load the view for home
 		$data['pagetitle'] = 'Home';
 		$this->load->view('templates/home',$data);
@@ -138,6 +133,7 @@ class Index extends CI_Controller
 
 			fputs($dataFile,"\"$csstor\",\"$ean\",\"$qty\",\"$rsp\",\"$sales\",\"$gross\",\"$trans_date\",\"$week\",\"$trans_year\",\"$trans_month\"\n");
 		}
+			$this->dbh = null;
 			$this->session->set_flashdata("message", 'CSV Export successfully');
 			redirect('main/index/sales');
 
@@ -195,7 +191,7 @@ class Index extends CI_Controller
 			 $strspace="";
 
 		fputs($dataFile,"\"$strnum\",\"$strnam\",\"$straddx\",\"$stcity\",\"$strspace\",\"$strspace\",\"$stsdat\",\"$stcldt\",\"$strspace\",\"$strspace\"\n");		}
-			
+			$this->dbh = null;
 			$this->session->set_flashdata("message", 'CSV Export successfully');
 			redirect('main/index/store');
 
@@ -257,7 +253,7 @@ class Index extends CI_Controller
 		fputs($dataFile,"\"$upc\",\"$sku\",\"$idesc\",\"$srp\",\"$uom\",\"$strspace\",\"$strspace\",\"$catcd\",\"$catds\",\"$scatcd\",\"$scatds\",\"$ascd\",\"$asnam\",\"$strdate\",\"$strspace\"\n");
 		
 		}
-
+		$this->dbh = null;
 		$this->session->set_flashdata("message", 'CSV Export successfully');
 		redirect('main/index/item');
 		}
