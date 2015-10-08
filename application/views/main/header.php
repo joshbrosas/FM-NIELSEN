@@ -45,14 +45,14 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="<?php echo base_url();?>index.php/main/index"><strong style="color: #5cb85c">FamilyMart </strong></a>
+                <a class="navbar-brand" href="<?php echo base_url();?>index.php/main/index"><strong style="color: #5cb85c">FamilyMart <i>(Neilsen)</i> </strong></a>
             </div>
             <!-- /.navbar-header -->
 
             <ul class="nav navbar-top-links navbar-right">                    
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
+                        <i class="fa fa-user fa-fw" style="color: #5cb85c"></i> <strong style="color: #5cb85c"><?php echo $this->session->userdata('fm_username'); ?></strong>  <i class="fa fa-caret-down" style="color: #5cb85c"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-user">
 						<!--

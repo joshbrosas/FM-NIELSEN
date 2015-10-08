@@ -81,10 +81,8 @@ $sqlStr="select mst.ivndpn,mst.inumbr,mst.idescr,mst.isdept,sdept.dptnam,mst.icl
      fputs($dataFile,"\"$upc\",\"$sku\",\"$idesc\",\"$srp\",\"$uom\",\"$strspace\",\"$strspace\",\"$catcd\",\"$catds\",\"$scatcd\",\"$scatds\",\"$ascd\",\"$asnam\",\"$strdate\",\"$strspace\"\n");
 }
 
- echo "\t<table>\n";
+  echo "\t<table>\n";
   echo "\t<tr class=\"normal\" align=\"center\">\n";
   echo "\t<td>DONE</td>\n";
-
-
 
 ?>

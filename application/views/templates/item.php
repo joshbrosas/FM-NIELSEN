@@ -23,8 +23,11 @@
 				</div>
 
 				<div class="row">
-					<div class="col-md-offset-2 col-md-1"><input type="submit" class="btn btn-success btn-sm" value="Export To CSV"></div>
-				</div>	
+					<div class="col-md-offset-3 col-md-1"><input type="submit" class="btn btn-success btn-sm" id="btnexport" value="Export To CSV"></div>
+				</div>
+				<div class="row" style="margin-top: 5px">
+					<div class="col-md-offset-4 col-md-1"><img src="<?php echo base_url(); ?>assets/dist/spinnr/spin.gif" style="display:none"  id="img_spin"></div>
+				</div>		
 			</form>
 		</div>
 	</div>

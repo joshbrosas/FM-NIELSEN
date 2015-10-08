@@ -42,6 +42,9 @@ $("#formexport").submit(function () {
   {
       alert('Please Fill all the required fields!');
       return false;
+  }else{
+    $("#img_spin").show();
+    $('#btnexport').prop('disabled', true);
   }
   });
 
@@ -53,6 +56,9 @@ $("#formitem").submit(function () {
   {
       alert('Please Fill all the required fields!');
       return false;
+  }else{
+    $('#btnexport').prop('disabled', true);
+    $("#img_spin").show();
   }
   });
 
@@ -65,9 +71,7 @@ var options = {
   // id for new nanobar
   id: 'mynano'
 };
-
 var nanobar = new Nanobar( options );
-for(i = 0; i < 100; i++){
-nanobar.go(i);
-}
+nanobar.go( 30 ); 
+
 nanobar.go(100);

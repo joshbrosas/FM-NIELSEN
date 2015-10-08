@@ -2,8 +2,6 @@
 
 class Index extends CI_Controller 
 {
-
-
     public function __construct()
 	{
 		error_reporting(E_ALL & ~E_NOTICE);
@@ -11,30 +9,35 @@ class Index extends CI_Controller
 		ini_set('memory_limit','30000M'); // mem
 		ini_set('max_execution_time', 3000); // time
 		$this->load->library('session');
-	}
+		$this->load->library('ftp');
 
+	}
 
 	public function login()
 	{
 		$data['pagetitle'] = 'Login Page';
 		$this->load->view('templates/login',$data);
 
-
 		if($_SERVER['REQUEST_METHOD'] == 'POST')
 		{
-			$jda_username = strtoupper($this->input->post('username'));
-			$jda_password = $this->input->post('password');
-			
-			if($jda_username == 'DOLF' && $jda_password == 'admin123') //override account for local testing
+
+			$jda_username = $this->security->xss_clean($this->input->post('username'));
+			$jda_password = $this->security->xss_clean($this->input->post('password'));
+
+			$this->db->select('username, password');
+			$this->db->where('username', $jda_username);
+			$this->db->where('password', $jda_password);  
+			$query = $this->db->get('nlsn_login');
+
+			if($query->num_rows() == 1)
 			{
-				$this->session->set_userdata('jda_username',$jda_username);
-				$this->session->set_userdata('jda_password',$jda_password);
-				redirect('main/index');				
+				$this->session->set_userdata('fm_username',$jda_username);
+				$this->session->set_userdata('fm_password',$jda_password);
+				redirect('main/index');	
 			}
 			else
 			{
-				$process_error = "Login Failed!";
-				$data['process_error'] = $process_error;
+				$this->session->set_flashdata("message", "Incorrect Username/Password");
 				redirect('main/index/login');	
 			}
 		}
@@ -48,6 +51,10 @@ class Index extends CI_Controller
 
 	public function index()
 	{
+		if (!$this->session->userdata('fm_username'))
+		{
+			redirect('main/index/login');
+		}
 		# Load the view for home
 		$data['pagetitle'] = 'Home';
 		$this->load->view('templates/home',$data);
@@ -55,10 +62,15 @@ class Index extends CI_Controller
 
 	public function sales()
 	{
+		if (!$this->session->userdata('fm_username'))
+		{
+			redirect('main/index/login');
+		}
 		# Load the view for sales
 		$data['pagetitle'] = "Sales";
 		$this->load->view('templates/sales', $data);
 
+			
 		if($_SERVER['REQUEST_METHOD'] == 'POST')
 		{
 			$datefrom = str_replace("/", "",  $this->input->post('datefrom'));
@@ -73,17 +85,17 @@ class Index extends CI_Controller
 			$format_date_to = $date->format("ymd");
 			$frmt_date_to= "$format_date_to"; 
 			$dateto =  $frmt_date_to;
-			
-		$cnString = "odbc:DRIVER={iSeries Access ODBC Driver}; ".
+		try {
+				$cnString = "odbc:DRIVER={iSeries Access ODBC Driver}; ".
 					"SYSTEM=172.16.1.9; ".
 					"DATABASE=MMFMSLIB; ".
 					"UID=DCLACAP; ".
 					"PWD=PASSWORD";		
 		$this->dbh = new PDO($cnString,"","");
 		$query = "select a.csdate,a.csstor,b.ivndpn,sum(a.csqty) as csqty,sum(a.csexpr) as csexpr
-					from MMFMSLIB.CSHDET a inner join MMFMSLIB.INVMST b on a.cssku=b.inumbr
-					where a.cscen=1 and a.csdate between {$datefrom} and {$dateto} group by a.csdate,a.csstor,b.ivndpn 
-					";
+				  from MMFMSLIB.CSHDET a inner join MMFMSLIB.INVMST b on a.cssku=b.inumbr
+				  where a.cscen=1 and a.csdate between {$datefrom} and {$dateto} and b.isdept<>910 and b.ihzcod='CVS' group by a.csdate,a.csstor,b.ivndpn";
+
 		$statement = $this->dbh->prepare($query);
 		$statement->execute();	
 		$result  = $statement->fetchAll();
@@ -92,7 +104,7 @@ class Index extends CI_Controller
 			$todayz=date("mdY",strtotime('+8 hours'));
 			$filename = "SALES_"."$todayz".".csv";
 			$dataFile = fopen($output_dir.$filename,'w');
-
+			fputs($dataFile,"\"STORE\",\"EAN\",\"QUANTITY\",\"RSP\",\"NetSales\",\"GrossSales\",\"TransactionPeriod\",\"WeekNumber\",\"Year\",\"MonthNumber\"\n");
 		foreach ($result as $value) {
 
 			$ddate =  $value['CSDATE'];
@@ -133,15 +145,25 @@ class Index extends CI_Controller
 
 			fputs($dataFile,"\"$csstor\",\"$ean\",\"$qty\",\"$rsp\",\"$sales\",\"$gross\",\"$trans_date\",\"$week\",\"$trans_year\",\"$trans_month\"\n");
 		}
+
 			$this->dbh = null;
 			$this->session->set_flashdata("message", 'CSV Export successfully');
 			redirect('main/index/sales');
+			} catch (Exception $e) {
+				echo "Please Check Connection Settings.";
+				exit();
+			}	
+		
 
 		}
 	}
 
 	public function store()
 	{
+		if (!$this->session->userdata('fm_username'))
+		{
+			redirect('main/index/login');
+		}
 		# Load the view for store
 		#$this->load->library("mstgen");
 		$data['pagetitle'] = "Store";
@@ -200,6 +222,10 @@ class Index extends CI_Controller
 
 	public function item()
 	{
+		if (!$this->session->userdata('fm_username'))
+		{
+			redirect('main/index/login');
+		}
 		# Load the view for item
 		$data['pagetitle'] = "Item";
 		$this->load->view('templates/item', $data);
@@ -236,23 +262,24 @@ class Index extends CI_Controller
 		
 		foreach ($result as $value) 
 		{
-					$upc 	 = $value['IVNDPN'];
-					$sku   	 = $value['INUMBR'];
-					$idesc 	 = $value['IDESCR'];
-					$srp 	 = $value['CURREG'];
-					$uom	 = $value['ISLUM'];
-					$catcd	 = $value['ISDEPT'];
-					$catds	 = $value['DPTNAM'];
-					$scatcd  = $value['ICLAS'];
-					$scatds  = $value['DPTNAM'];
-					$ascd	 = $value['ASNUM'];
-					$asnam   = $value['ASNAME'];
-					$strdate = $this->fdate($value['IMDATE']);
-					$strspace= "";
+				$upc 	  = $value['IVNDPN'];
+				$sku   	  = $value['INUMBR'];
+				$idesc 	  = $value['IDESCR'];
+				$srp 	  = $value['CURREG'];
+				$uom	  = $value['ISLUM'];
+				$catcd	  = $value['ISDEPT'];
+				$catds	  = $value['DPTNAM'];
+				$scatcd   = $value['ICLAS'];
+				$scatds   = $value['DPTNAM'];
+				$ascd	  = $value['ASNUM'];
+				$asnam    = $value['ASNAME'];
+				$strdate  = $this->fdate($value['IMDATE']);
+				$strspace = "";
 
-		fputs($dataFile,"\"$upc\",\"$sku\",\"$idesc\",\"$srp\",\"$uom\",\"$strspace\",\"$strspace\",\"$catcd\",\"$catds\",\"$scatcd\",\"$scatds\",\"$ascd\",\"$asnam\",\"$strdate\",\"$strspace\"\n");
+			fputs($dataFile,"\"$upc\",\"$sku\",\"$idesc\",\"$srp\",\"$uom\",\"$strspace\",\"$strspace\",\"$catcd\",\"$catds\",\"$scatcd\",\"$scatds\",\"$ascd\",\"$asnam\",\"$strdate\",\"$strspace\"\n");
 		
 		}
+
 		$this->dbh = null;
 		$this->session->set_flashdata("message", 'CSV Export successfully');
 		redirect('main/index/item');
