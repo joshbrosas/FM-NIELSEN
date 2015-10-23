@@ -72,18 +72,12 @@
 							<li><a href="<?php echo base_url(); ?>index.php/main/index"><i class="fa fa-home fa-fw"></i>  Home</a></li>
                             <li><a href="<?php echo base_url(); ?>index.php/main/index/sales"><i class="fa fa-home fa-table"></i>  Nielsen <span class="fa arrow"></span></a>
                              <ul class="nav nav-second-level">
+                                <li><a href="<?php echo base_url(); ?>index.php/main/msnielsen/index">Sales FC</a></li>
                                 <li><a href="<?php echo base_url(); ?>index.php/main/index/sales">Sales</a></li>
                                 <li><a href="<?php echo base_url(); ?>index.php/main/index/item">Item</a></li>
                                 <li><a href="<?php echo base_url(); ?>index.php/main/index/store">Store</a></li>
-                            </ul>       
+                            </ul>    
                             </li>
-							
-							<li>
-                
-							</li>						
-							<li>
-                            <!--<a href="<?php //echo base_url(); ?>index.php/main/about"><i class="fa fa-info fa-fw"></i> About</a>-->
-							</li>
                     </ul>
                 </div>
             </div>

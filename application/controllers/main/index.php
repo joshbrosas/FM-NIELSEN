@@ -85,20 +85,21 @@ class Index extends CI_Controller
 			$format_date_to = $date->format("ymd");
 			$frmt_date_to= "$format_date_to"; 
 			$dateto =  $frmt_date_to;
-		try {
+
+			try {
 				$cnString = "odbc:DRIVER={iSeries Access ODBC Driver}; ".
 					"SYSTEM=172.16.1.9; ".
 					"DATABASE=MMFMSLIB; ".
 					"UID=DCLACAP; ".
 					"PWD=PASSWORD";		
-		$this->dbh = new PDO($cnString,"","");
-		$query = "select a.csdate,a.csstor,b.ivndpn,sum(a.csqty) as csqty,sum(a.csexpr) as csexpr
+			$this->dbh = new PDO($cnString,"","");
+			$query = "select a.csdate,a.csstor,b.ivndpn,sum(a.csqty) as csqty,sum(a.csexpr) as csexpr
 				  from MMFMSLIB.CSHDET a inner join MMFMSLIB.INVMST b on a.cssku=b.inumbr
-				  where a.cscen=1 and a.csdate between {$datefrom} and {$dateto} and b.isdept<>910 and b.ihzcod='CVS' group by a.csdate,a.csstor,b.ivndpn";
+				  where a.cscen=1 and a.csdate between {$datefrom} and {$dateto} and b.isdept <> 910 and b.ihzcod='CVS' group by a.csdate,a.csstor,b.ivndpn";
 
-		$statement = $this->dbh->prepare($query);
-		$statement->execute();	
-		$result  = $statement->fetchAll();
+			$statement = $this->dbh->prepare($query);
+			$statement->execute();	
+			$result  = $statement->fetchAll();
 		
 			$output_dir="csv.docs\\";
 			$todayz=date("mdY",strtotime('+8 hours'));
@@ -153,8 +154,6 @@ class Index extends CI_Controller
 				echo "Please Check Connection Settings.";
 				exit();
 			}	
-		
-
 		}
 	}
 
@@ -184,17 +183,18 @@ class Index extends CI_Controller
 			$frmt_date_to= "$format_date_to"; 
 			$dateto =  $frmt_date_to;
 			
-		$cnString = "odbc:DRIVER={iSeries Access ODBC Driver}; ".
+			try {
+				$cnString = "odbc:DRIVER={iSeries Access ODBC Driver}; ".
 					"SYSTEM=172.16.1.9; ".
 					"DATABASE=MMFMSLIB; ".
 					"UID=DCLACAP; ".
 					"PWD=PASSWORD";	
 
-		$this->dbh = new PDO($cnString,"","");
-		$query = "select strnum,strnam,stadd1,stcity,stsdat,stcldt from MMFMSLIB.TBLSTR where strnum < 999";
-		$statement = $this->dbh->prepare($query);
-		$statement->execute();	
-		$result  = $statement->fetchAll();
+		 		$this->dbh = new PDO($cnString,"","");
+		 		$query = "select strnum,strnam,stadd1,stcity,stsdat,stcldt from MMFMSLIB.TBLSTR where strnum < 999";
+		 		$statement = $this->dbh->prepare($query);
+			  	$statement->execute();	
+				$result  = $statement->fetchAll();
 
 			$output_dir="csv.docs\\";
 			$todayz=date("mdY",strtotime('+8 hours'));
@@ -216,6 +216,10 @@ class Index extends CI_Controller
 			$this->dbh = null;
 			$this->session->set_flashdata("message", 'CSV Export successfully');
 			redirect('main/index/store');
+			} catch (Exception $e) {
+				echo "Please Check connection settings";
+				exit();	
+			}
 
 		}
 	}
@@ -232,6 +236,8 @@ class Index extends CI_Controller
 
 		if($_SERVER['REQUEST_METHOD'] == 'POST')
 		{
+			try {
+				
 			$date = new DateTime($this->input->post('selectdate'));
 			$format_date_from = $date->format("ymd");
 			$frmt_date_from = "$format_date_from"; 
@@ -283,6 +289,10 @@ class Index extends CI_Controller
 		$this->dbh = null;
 		$this->session->set_flashdata("message", 'CSV Export successfully');
 		redirect('main/index/item');
+			} catch (Exception $e) {
+				echo "Please check connection settings.";
+				exit();
+			}
 		}
 	}
 
